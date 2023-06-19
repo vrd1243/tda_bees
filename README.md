@@ -41,13 +41,11 @@ STEP III: Compress crocker plots using PCA. Use the file code/pca.R (to be used 
 Usage: Rscript pca.R <input_crocker_file>
 Output: Generates a pca file in results/ directory
 
-STEP IVa: Compress the crocker plots using norms and run clustering based phase-change detection. 
-          Four clustering variants are used: a) Agglomerative clustering on crocker norm. 
+STEP IVa: Compress the crocker plots using norms and run clustering based phase-change detection. Use file code/clustering_using_norms.py.
+	  Four clustering variants are used: a) Agglomerative clustering on crocker norm. 
           b) Agglomerative on tuple (crocker norm, time)
           c) Kmeans on crocker norm
           d) Kmeans on (norm, time) tuple.
-
-          Use file code/clustering_using_norms.py
 
 Usage: python clustering_using_norms.py <input_crocker_file> <output_prefix>
 Output: Generates the following files in results/: a) <prefix>_norms.txt contains the CROCKER norms. 
