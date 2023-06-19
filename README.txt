@@ -7,9 +7,8 @@ Aggregation" by Gharooni-Fard et al.
 All the data files can be found under datasets/, organized as follows: 
 
 - datasets/
-	- datasets/movies/: Original movies for the experimental and simulation
-			    recordings. For the experimental recordings, you can
-			    split the movies into images using the ffmpeg tool. 
+	- datasets/movies/: Sped-up movies of the experimental and simulation
+			    recordings.  
 
 	- datasets/expt_images/: Images generated from the experiemntal movie data using 
                             ffmeg. Images for only one dataset are provided (Used for 
