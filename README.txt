@@ -14,8 +14,10 @@ All the data files can be found under datasets/, organized as follows:
                             ffmeg. Images for only one dataset are provided (Used for 
 			    generating Fig. 7 in the paper.)
 
-	- datasetts/sim_txt/: Text file containing the data for the simulation run. (used for generating
+	- datasets/sim_txt/: Text file containing the data for the simulation run. (used for generating
 			      Fig. 4 in the paper.)
+
+        - datasets/crockers/: Generated crocker matrices of the six experimental datasets.
 
 ======================== Code files ============================
 
