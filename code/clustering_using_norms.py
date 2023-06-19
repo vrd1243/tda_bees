@@ -28,6 +28,10 @@ def kmeans_clustering(data, num_clusters, savepath):
 
 def main():
     
+    if len(sys.argv) < 3:
+        print("Usage: python clustering_using_norms.py <input_crocker_file> <output_prefix>") 
+        exit(0)
+
     load_file = sys.argv[1]
     output_prefix = sys.argv[2]
     

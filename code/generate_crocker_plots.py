@@ -143,7 +143,7 @@ def generate_crocker_matrix(next_img):
 def main():
     
     if len(sys.argv) != 3:
-        print("Usage: python crocker_matrix.py <input_frame_dir> <output_prefix>")
+        print("Usage: python generate_crocker_matrix.py <input_frame_dir> <output_prefix>")
         exit(0)
         
     map_dir = sys.argv[1]
