@@ -42,7 +42,6 @@ Usage: Rscript pca.R <input_crocker_file>
 Output: Generates a pca file in results/ directory
 
 STEP IVa: Compress the crocker plots using norms and run clustering based phase-change detection. Use file code/clustering_using_norms.py.
-          
 	  Four clustering variants are used: a) Agglomerative clustering on crocker norm. 
           b) Agglomerative on tuple (crocker norm, time)
           c) Kmeans on crocker norm
