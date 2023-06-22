@@ -12,8 +12,8 @@ All the data files can be found under datasets/, organized as follows:
 
 	- datasets/expt_images/: Images generated from the experimental movie data using 
                             ffmeg. Due to data limitations, images for only one dataset 
-                            (C0128)are provided under (Used for 
-			    generating Fig. 7 in the paper.)
+                            (C0128) are provided under https://github.com/vrd1243/tda_bees_datasets 
+                            (Used for generating Fig. 7 in the paper.)
 
 	- datasets/sim_txt/: Text file containing the data for the simulation run. (used for generating
 			      Fig. 4 in the paper.)
