@@ -38,7 +38,7 @@ def main():
     num_clusters = 2
     
     #use only the first 900 timesteps
-    crocker = np.loadtxt(load_file, delimiter=',')[:900]
+    crocker = np.loadtxt(load_file, delimiter=',')
     
     #create Betti norms with and without time
     betti_norms_with_time = crocker_norm(crocker)
@@ -49,9 +49,12 @@ def main():
     if load_path == '':
         load_path = '.'
         
-    cluster_labels_savepath = load_path + '/' + output_prefix
+    cluster_labels_savepath = '../results/' + output_prefix
 
-    np.savetxt(cluster_labels_savepath + '_norms.txt', betti_norms)
+    np.savetxt(cluster_labels_savepath + '_norms.txt', betti_norms_with_time)
+   
+    betti_norms_with_time = betti_norms_with_time[:900]
+    betti_norms = betti_norms[:900]
     
     #agglomerative clustering
     agg_clustering(betti_norms_with_time, num_clusters, cluster_labels_savepath + '_agg_with_time.txt')

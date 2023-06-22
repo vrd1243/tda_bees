@@ -1,5 +1,5 @@
 # Set working directory
-setwd("~/GradSchool/Research/bees/code/")
+setwd("./")
 
 pca <- function(rawdata, fileout){
   

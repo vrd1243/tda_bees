@@ -1,0 +1,10 @@
+datasets/* filter=lfs diff=lfs merge=lfs -text
+datasets/movies filter=lfs diff=lfs merge=lfs -text
+datasets/movies/C0132.mp4 filter=lfs diff=lfs merge=lfs -text
+datasets/movies/C0133.mp4 filter=lfs diff=lfs merge=lfs -text
+datasets/movies/SI_model_movie.mov filter=lfs diff=lfs merge=lfs -text
+datasets/movies/SI_model_movie1.mov filter=lfs diff=lfs merge=lfs -text
+datasets/movies/C0074.mp4 filter=lfs diff=lfs merge=lfs -text
+datasets/movies/C0077.mp4 filter=lfs diff=lfs merge=lfs -text
+datasets/movies/C0081.mp4 filter=lfs diff=lfs merge=lfs -text
+datasets/movies/C0128.mp4 filter=lfs diff=lfs merge=lfs -text

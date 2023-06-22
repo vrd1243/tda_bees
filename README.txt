@@ -10,8 +10,9 @@ All the data files can be found under datasets/, organized as follows:
 	- datasets/movies/: Sped-up movies of the experimental and simulation
 			    recordings.  
 
-	- datasets/expt_images/: Images generated from the experiemntal movie data using 
-                            ffmeg. Images for only one dataset are provided (Used for 
+	- datasets/expt_images/: Images generated from the experimental movie data using 
+                            ffmeg. Due to data limitations, images for only one dataset 
+                            (C0128)are provided under (Used for 
 			    generating Fig. 7 in the paper.)
 
 	- datasets/sim_txt/: Text file containing the data for the simulation run. (used for generating
@@ -21,11 +22,13 @@ All the data files can be found under datasets/, organized as follows:
 
 ======================== Code files ============================
 
-All the code files can be found under code/. We provide a short pipeline execution for
+All the code files can be found under code/. We provide a short pipeline description for
 extracting the CROCKER plots from sequences of images, compress CROCKER plots using norms/PCA,
 and use the resulting time-series data to detect changepoints. 
 
-STEP Ia: Generate crocker plots for experiments from image data. Use code/generate_crocker_matrix.py
+STEP Ia: Generate crocker plots for experiments from image data. This assumes that the image files are 
+already downloaded from the dataset repository into a local folder. Use code/generate_crocker_matrix.py.
+This can be skipped and the user may directly use the CROCKER files provided in datasets/crockers/.
 
 Usage: python generate_crocker_matrix.py <input_frame_dir> <output_prefix>
 Output: Generates a CROCKER matrix file in results/ directory
@@ -62,7 +65,12 @@ STEP IIIb: Run clustering based phase-change detection on the PCA representation
 Usage: python clustering_using_pca.py <input_pca_file> <output_prefix>
 Output: Generates equivalent files of STEP IVa:(b)-(e).
 
-STEP IIIc: Run change-point based phase-change detection on the norms and PCA representation. Use code/changepoint.R 
+STEP IVa: Run clustering-based phase-change algorithm to determine phase-change locations from files generated in STEP IIIa. Use file code/find_changepoint.py 
 
-Usage: Rscript changepoint.R <input_representation_file>
-Output: Returns the time-stamp of change-point. 
+Usage: Usage: python find_changepoint.py <input_representation_file>
+Output: Returns changepoint locations. This will by default provide the first change-point. To get the next change-point, set the variable first_changepoint to the value of the first change-point.
+
+STEP IVb: Run change-point (R) based phase-change detection on the norms and PCA representation. Use code/changepoint.R 
+
+Usage: Rscript changepoint.R <input_representation_file> {pca|norm}
+Output: Returns the changepoint location. To get values of n changepoints, set Q=n in the code.

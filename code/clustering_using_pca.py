@@ -29,24 +29,15 @@ def kmeans_clustering(data, num_clusters, savepath):
 def main():
     
     # Load the PCA-reduced version of the CROCKER plot directly.    
-    load_file = sys.argv[1]
+    load_path = sys.argv[1]
     output_prefix = sys.argv[2]
     
     num_clusters = 2
     
     #first principal component and time tuples are saved in a txt file
-    pca = np.loadtxt(loadpath, delimiter=',')
+    pca = np.loadtxt(load_path, delimiter=',', skiprows=1)
 
-    #create Betti norms with and without time
-    betti_norms_with_time = crocker_norm(crocker)
-    betti_norms = crocker_norm(crocker, time=False).reshape(-1,1)
-    
-    load_path = os.path.dirname(load_file)
-    
-    if load_path == '':
-        load_path = '.'
-        
-    cluster_labels_savepath = load_path + '/' + output_prefix
+    cluster_labels_savepath = '../results/' + output_prefix
     
     #agglomerative clustering
     agg_clustering(pca, num_clusters, cluster_labels_savepath + '_agg_with_pca_time.txt')
