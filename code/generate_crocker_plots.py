@@ -36,32 +36,36 @@ def numericalSort(value):
 # This will serve as the point cloud data on which we run TDA 
 # and generate CROCKER plots. 
 
-def desired_objects(bin_img, seed):
-
-    bee_size = 2000
+def desired_objects(bin_img):
+    k= 115
+    bee_size = 2900
     bee_locations=[]
 
     num_regions, regions, stats, centroids = cv2.connectedComponentsWithStats(bin_img.astype(np.uint8), connectivity=4)
     sizes = stats[:,-1]
+    
     max_label = []
     min_size = 0
     comp_size = []
-    np.random.seed(seed)
 
     for i in range(1, num_regions):
-        if sizes[i] > min_size:
+        if sizes[i] > min_size + 1000 :
             max_label.append(i)
             comp_size.append(sizes[i])
 
-        num_bees = int(np.around(sizes[i]/bee_size))    
-        x_loc, y_loc = np.where(regions == i)
+            num_bees = int(np.around(sizes[i]/bee_size)) 
+            
+            x_loc, y_loc = np.where(regions == i)
 
-        for j in range(num_bees):
-            i = np.random.randint(x_loc.shape[0])
-            bee_locations.append([x_loc[i], y_loc[i]])
-        
+            for j in range(num_bees):
+                i = np.random.randint(x_loc.shape[0])
+                bee_locations.append([x_loc[i], y_loc[i]])
+        else: 
+            continue
+
     bee_locations = np.array(bee_locations)
-       
+    
+
     return bee_locations
 
 
@@ -70,75 +74,76 @@ def desired_objects(bin_img, seed):
 
 def generate_crocker_matrix(next_img):
 
-    summarized_comps = np.zeros((len(next_img),700))
-    summarized_avg_cluster_size = np.zeros((len(next_img),700))
-    summarized_max_cluster_size = np.zeros((len(next_img),700))
+    all_comps = []
+    all_avg_cluster_size = []
+    all_max_cluster_size = []
+    broken_frames=0
 
-    iterations = 1
-    for r in range(iterations):
+    G = nx.Graph()
 
-        G = nx.Graph()
-        all_comps = []
+    for i in tqdm(range(len(next_img))):
+        arr = Image.open(next_img[i])
+        data_gray = np.asarray(arr)
 
-        for i in tqdm(range(len(next_img))):
+        kernel = np.ones((7,7), np.uint8)
+        k = 5
+        im_blur = cv2.GaussianBlur(src = data_gray, ksize = (k, k), sigmaX = 0)
 
-            arr = Image.open(next_img[i])
-            data = np.asarray(arr)
-            data_gray = np.average(data, axis=2)
 
-            # Blur image to remove any graininess. 
-            kernel = np.ones((5,5), np.uint8)
-            k = 35
-            im_blur = cv2.GaussianBlur(src = data_gray, ksize = (k, k), sigmaX = 0)
+        thresh_min = threshold_minimum(data_gray)
+        binary_min = im_blur > thresh_min + 5
+        binary_min_arr = np.array(binary_min, dtype=np.uint8)
+        closing = cv2.morphologyEx(binary_min_arr, cv2.MORPH_CLOSE, kernel)
+        data = 255 - closing * 255    
 
-            # Threshold the image and convert to black and white. 
-            thresh_min = threshold_minimum(im_blur)
-            binary_min = im_blur > thresh_min
-            binary_min_arr = np.array(binary_min, dtype=np.uint8)
+        point_cloud = desired_objects(data)
 
-            # Morphology: Dilate and erode to fill any isolated pixels that are not 
-            # really bees. 
-            closing = cv2.morphologyEx(binary_min_arr, cv2.MORPH_CLOSE, kernel)
-            data = 255 - closing * 255    
+        rips_complex = gd.RipsComplex(points=point_cloud).create_simplex_tree(max_dimension=1)
+        pers = rips_complex.persistence()
+        skeleton = rips_complex.get_skeleton(1)
+        components = []
+        avg_cluster_size = []
+        max_cluster_size = []
 
-            # Generate a point cloud data and get the rips complex. 
-            point_cloud = desired_objects(data, r)
-            rips_complex = gd.RipsComplex(points=point_cloud).create_simplex_tree(max_dimension=1)
-            pers = rips_complex.persistence()
-            skeleton = rips_complex.get_skeleton(1)
+        for epsilon in np.arange(0,700,1):
 
-            components = []
-            avg_cluster_size = []
-            max_cluster_size = []
+            edges = []
+            G = nx.Graph()
+            [G.add_node(n) for n in range(len(point_cloud))]
 
-            # Iterate through the complex and get Betti counts for pre-determined epsilons.
-            start_time = datetime.now()
-            for epsilon in np.arange(0,700,1):
+            for s in skeleton: 
+                
+                nodes, filtration = s
+                e = 0
+                
+                if filtration <= epsilon and len(nodes) == 2 and e < 60:
+                    e = e + 1
+                    G.add_edge(nodes[0], nodes[1])
+                else: 
+                    break
 
-                edges = []
-                G = nx.Graph()
-                [G.add_node(n) for n in range(len(point_cloud))]
+            cc = nx.connected_components(G)
+            clusters = [len(c) for c in sorted(nx.connected_components(G), key=len, reverse=True)]
 
-                for s in skeleton: 
-                    nodes, filtration = s
+            avg_cluster_size.append(np.mean(clusters))
+            max_cluster_size.append(np.max(clusters))
+            components.append(rips_complex.persistent_betti_numbers(epsilon,epsilon)[0])
 
-                    if filtration <= epsilon and len(nodes) == 2:
-                        G.add_edge(nodes[0], nodes[1])
+        if (np.array(components[0])> 65) or (np.array(components[0]) < 35) :    
+            print ('Noisy frame #{} -> removed'.format(broken_frames+1))
+            broken_frames+=1
+            components.pop()
 
-                cc = nx.connected_components(G)
-                clusters = [len(c) for c in sorted(nx.connected_components(G), key=len, reverse=True)]
-                components.append(rips_complex.persistent_betti_numbers(epsilon,epsilon)[0])
+        else:
 
             all_comps.append(np.array(components))
-	
-        summarized_comps += np.array(all_comps)
+            all_avg_cluster_size.append(np.array(avg_cluster_size))
+            all_max_cluster_size.append(np.array(max_cluster_size))
 
-    summarized_comps = summarized_comps / iterations
+    #some frames were removed from the set because I have my hand in the setup, etc.
+    print ('Total number of removed frames = ', broken_frames)
 
-    for i in np.where(summarized_comps[:,1] > 90)[0]:
-        summarized_comps[i,:] = summarized_comps[i-1,:]
-
-    return summarized_comps
+    return all_comps
     
 def main():
     
